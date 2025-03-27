@@ -63,7 +63,9 @@ class MainScreenViewModel : ViewModel() {
 
     fun updateOnTextFill () { onTextFill = textfield.value.isNotEmpty() }
 
-    fun updateAppIsOn (value: Boolean) { appIsOn = value }
+    fun updateOnHistoryPress () { onHistoryButton = !onHistoryButton }
+
+    fun updateAppIsOn () { appIsOn = !appIsOn }
 
     fun updateTextField (value: String) { _textfield.value = value }
 
@@ -94,9 +96,13 @@ class MainScreenViewModel : ViewModel() {
     fun sendQuestion()
     {
         viewModelScope.launch {
-            repositoryQuestion.updateQuestion(map = mapOf("question" to (_textfield.value.toIntOrNull() ?: 0)))
+            repositoryQuestion
+                .updateQuestion(map = mapOf("question" to (_textfield.value.toIntOrNull() ?: 0)))
+
             delay(1000)
-            repositoryQuestion.updateQuestion(map = mapOf("activate" to true))
+
+            repositoryQuestion
+                .updateQuestion(map = mapOf("activate" to true))
         }
     }
 

@@ -1,29 +1,52 @@
 package com.zhei.lawy.view
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.zhei.lawy.view.ui.MainScreen
+import com.zhei.lawy.view.ui.mainscreen.MainScreen
+import com.zhei.lawy.view.ui.splashscreen.SplashScreenLawy
 import com.zhei.lawy.view.viewmodel.MainScreenViewModel
+import com.zhei.lawy.view.viewmodel.SplashScreenViewModel
 
 @Composable fun MyNavGraph ()
 {
     val navHost = rememberNavController()
 
-    NavHost(navController = navHost, startDestination = Screens.MainScreen) {
+    val viewMainS: MainScreenViewModel = viewModel()
+    val viewSplash: SplashScreenViewModel = viewModel()
 
-        composable<Screens.MainScreen> {
-            MainScreen(navHost = navHost)
+    NavHost(navController = navHost, startDestination = Screens.SplashScreen) {
+
+        composable<Screens.SplashScreen> () {
+            SplashScreenLawy (
+                viewSplash = viewSplash,
+                onNavigate = {
+                    navHost.navigate(Screens.MainScreen) {
+                        launchSingleTop = true
+                        popUpTo<Screens.SplashScreen> {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
         }
 
+        composable<Screens.MainScreen> (
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { -it },
+                    animationSpec = tween(1500)
+                )
+            }
+        ) {
+            MainScreen(
+                navHost = navHost,
+                viewMainS = viewMainS
+            )
+        }
     }
 }

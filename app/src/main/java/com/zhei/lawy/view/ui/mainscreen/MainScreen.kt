@@ -1,7 +1,8 @@
-package com.zhei.lawy.view.ui
+package com.zhei.lawy.view.ui.mainscreen
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.res.Configuration
+import android.os.Build
 import android.util.Log
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateColorAsState
@@ -13,35 +14,33 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.OverscrollConfiguration
-import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -49,7 +48,6 @@ import androidx.compose.material.icons.filled.ArrowCircleUp
 import androidx.compose.material.icons.filled.EmojiPeople
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Rocket
-import androidx.compose.material.icons.outlined.ArrowCircleUp
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -58,36 +56,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -98,28 +92,20 @@ import com.zhei.lawy.EntityExecuted
 import com.zhei.lawy.MyFont
 import com.zhei.lawy.R
 import com.zhei.lawy.data.model.ChattingEntity
+import com.zhei.lawy.ui.theme.BLACK_ONE
+import com.zhei.lawy.ui.theme.BLACK_THREE
+import com.zhei.lawy.ui.theme.BLACK_TWO
 import com.zhei.lawy.ui.theme.BLUE_FOUR
-import com.zhei.lawy.ui.theme.BLUE_THREE
-import com.zhei.lawy.ui.theme.BLUE_TWO
 import com.zhei.lawy.ui.theme.GREEN_EIGHT
-import com.zhei.lawy.ui.theme.GREEN_ONE
-import com.zhei.lawy.ui.theme.GREEN_SEVEN
 import com.zhei.lawy.ui.theme.GREEN_THREE
-import com.zhei.lawy.ui.theme.GREEN_TWO
-import com.zhei.lawy.ui.theme.ORANGE_ONE
-import com.zhei.lawy.ui.theme.Purple80
-import com.zhei.lawy.ui.theme.RED_FIVE
+import com.zhei.lawy.ui.theme.GREY_ONE
+import com.zhei.lawy.ui.theme.PurpleGrey40
 import com.zhei.lawy.ui.theme.RED_FOUR
-import com.zhei.lawy.ui.theme.RED_ONE
-import com.zhei.lawy.ui.theme.RED_SEVEN
-import com.zhei.lawy.ui.theme.RED_SIX
 import com.zhei.lawy.ui.theme.RED_THREE
-import com.zhei.lawy.ui.theme.YELLOW_FIVE
-import com.zhei.lawy.ui.theme.YELLOW_FOUR
-import com.zhei.lawy.ui.theme.YELLOW_ONE
 import com.zhei.lawy.ui.theme.YELLOW_THREE
 import com.zhei.lawy.view.viewmodel.MainScreenViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @SuppressLint("ContextCastToActivity")
@@ -139,11 +125,10 @@ import kotlinx.coroutines.delay
     }
 
     LaunchedEffect(key1 = viewMainS.textfield.value) {
-        delay(100)
         viewMainS.updateOnTextFill()
     }
     
-    LaunchedEffect(Unit) { viewMainS.updateAppIsOn(!viewMainS.appIsOn) }
+    LaunchedEffect(Unit) { delay(500); viewMainS.updateAppIsOn() }
 
     viewMainS.getAnswerAI()
 
@@ -151,14 +136,27 @@ import kotlinx.coroutines.delay
 
     /*Main Box*/
 
+    val heightPx = with(LocalDensity.current) { LocalConfiguration.current.screenHeightDp.dp.toPx() }
+
+    val animateTranstion = animateTranslationToHistory(viewMainS = viewMainS, distance = -heightPx)
+
+    Log.e("PX", heightPx.toString())
+
+
+    /* <----------------------- Screens ----------------------> */
+
+
     Box (
         modifier = Modifier
             .fillMaxSize()
             .animateContentSize()
-            .background(Color.White)
+            .background(Color.Black)
+            .graphicsLayer {
+                translationY = animateTranstion
+            }
     ) {
 
-        BackgroundImageMainScreen()
+        /*BackgroundImageMainScreen()*/
 
         Column (
             modifier = Modifier.fillMaxSize(),
@@ -175,6 +173,8 @@ import kotlinx.coroutines.delay
 
         BottomMainScreenArea(viewMainS = viewMainS)
     }
+
+    HistoryScreen(viewMainS = viewMainS, distanceDevice = heightPx / 2)
 }
 
 
@@ -194,43 +194,26 @@ import kotlinx.coroutines.delay
 @Composable fun HeaderMainScreenArea (
     viewMainS: MainScreenViewModel
 ) {
+    val focusKeyBoard = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val animateY = animateTranslationYRocket(viewMainS = viewMainS)
+    val scope = rememberCoroutineScope()
 
     Surface (
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp),
+            .height(100.dp),
         color = Color.Transparent,
         shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
     ) {
 
         Row (
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 20.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(98.dp)
+            horizontalArrangement = Arrangement.Start
         ) {
-
-            Column (
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(start = 20.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                Image(
-                    imageVector = Icons.Default.History,
-                    contentDescription = "history",
-                    modifier = Modifier
-                        .size(40.dp)
-                        .pointerInput(Unit) {
-                            detectTapGestures {
-
-                            }
-                        },
-                    colorFilter = ColorFilter.tint(Color.Black)
-                )
-            }
 
             Row (
                 verticalAlignment = Alignment.CenterVertically,
@@ -239,8 +222,8 @@ import kotlinx.coroutines.delay
                 Text(
                     text = "Lawy",
                     fontFamily = MyFont.soraSemiBold,
-                    fontSize = 35.sp,
-                    color = Color.Black
+                    fontSize = 30.sp,
+                    color = Color.White
                 )
                 Image(
                     imageVector = Icons.Default.Rocket,
@@ -252,8 +235,47 @@ import kotlinx.coroutines.delay
                         }
                 )
             }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Column (
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(end = 20.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Image(
+                    imageVector = Icons.Default.History,
+                    contentDescription = "history",
+                    modifier = Modifier
+                        .size(30.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures {
+                                scope.launch {
+                                    focusKeyBoard.clearFocus()
+                                    keyboardController?.hide()
+                                    delay(600)
+                                    viewMainS.updateOnHistoryPress()
+                                }
+                            }
+                        },
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+            }
         }
     }
+}
+
+
+@Composable fun animateTranslationToHistory (
+    viewMainS: MainScreenViewModel,
+    distance: Float
+) : Float {
+    return animateFloatAsState(
+        targetValue = if (viewMainS.onHistoryButton) distance / 2 else 0f,
+        animationSpec = tween(500), label = "").value
 }
 
 
@@ -331,7 +353,6 @@ fun ChattingSectionArea(
     item: ChattingEntity,
     list: List<ChattingEntity>
 ) {
-
     Row (
         modifier = Modifier
             .fillMaxWidth()
@@ -357,7 +378,7 @@ fun ChattingSectionArea(
                     Image(
                         imageVector = Icons.Default.EmojiPeople,
                         contentDescription = "person",
-                        colorFilter = ColorFilter.tint(GREEN_THREE),
+                        colorFilter = ColorFilter.tint(Color.White),
                     )
                 }
 
@@ -367,7 +388,7 @@ fun ChattingSectionArea(
                     fontSize = 11.sp,
                     textAlign = TextAlign.Start,
                     lineHeight = 16.5.sp,
-                    color = Color.Black
+                    color = Color.White
                 )
 
                 if (item.entityExecuted == EntityExecuted.AI) {
@@ -377,7 +398,7 @@ fun ChattingSectionArea(
                         fontSize = 11.sp,
                         textAlign = TextAlign.Start,
                         lineHeight = 16.5.sp,
-                        color = Color.Black
+                        color = Color.White
                     )
                 }
             }
@@ -399,7 +420,7 @@ fun ChattingSectionArea(
             start = if (item.entityExecuted == EntityExecuted.PERSON) 30.dp else 0.dp,
             end = if (item.entityExecuted == EntityExecuted.PERSON) 0.dp else 30.dp
         ),
-        color = if (item.entityExecuted == EntityExecuted.PERSON) GREEN_EIGHT else BLUE_FOUR,
+        color = if (item.entityExecuted == EntityExecuted.PERSON) Color.Transparent else Color.White,
         shape = RoundedCornerShape(
             topStart = if (item.entityExecuted == EntityExecuted.PERSON) 20.dp else 0.dp,
             topEnd = if (item.entityExecuted == EntityExecuted.PERSON) 0.dp else 20.dp,
@@ -422,7 +443,7 @@ fun ChattingSectionArea(
                 modifier = Modifier.padding(10.dp),
                 textAlign = TextAlign.Justify,
                 lineHeight = 19.sp,
-                color = Color.Black
+                color = if (item.entityExecuted == EntityExecuted.PERSON) Color.White else Color.Black
             )
         }
     }
@@ -436,20 +457,16 @@ fun BottomMainScreenArea (
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .animateContentSize()
-            .imePadding()
-            .animateContentSize(),
+            .imePadding(),
         verticalArrangement = Arrangement.Bottom
 
     ) {
 
-        Surface (
+        Box (
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight(),
-            color = RED_THREE,
-            shadowElevation = 15.dp,
-            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                .wrapContentHeight()
+                .background(BLACK_THREE, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
         ) {
 
             Column (
@@ -493,9 +510,11 @@ fun BottomMainScreenArea (
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedTextColor = Color.Black,
                 unfocusedTextColor = Color.Black,
+                disabledContainerColor = Color.Transparent, 
+                disabledIndicatorColor = Color.Transparent
             ),
             modifier = Modifier
-                .width(if (isPortrait) 320.dp else 830.dp)
+                .weight(1f)
                 .focusRequester(focusRequest),
             minLines = 1,
             maxLines = 15,
@@ -503,23 +522,23 @@ fun BottomMainScreenArea (
                 imeAction = ImeAction.Done
             ),
             textStyle = TextStyle(
-                color = Color.Black,
-                fontFamily = MyFont.robotoMedium,
+                color = Color.White,
+                fontFamily = MyFont.soraRegular,
                 fontSize = 19.sp,
                 textAlign = TextAlign.Justify
             ),
             placeholder = {
                 Text(
                     text = "Preguntale a Lawy!",
-                    color = Color.Black,
+                    color = Color.White,
                     fontFamily = MyFont.soraRegular,
                     fontSize = 19.sp,
                     modifier = Modifier.height(23.5.dp),
+                    overflow = TextOverflow.Ellipsis
                 )
-            }
+            },
+            enabled = !viewMainS.onHistoryButton
         )
-
-        Spacer(modifier = Modifier.weight(1f))
 
         ImageToSendQuestion(viewMainS = viewMainS)
     }
@@ -556,7 +575,7 @@ fun BottomMainScreenArea (
         animationSpec = tween(1300), label = "")
 
     val animatedColor by animateColorAsState(
-        targetValue = if (onTextFilled) Color.White else Color.Black,
+        targetValue = if (onTextFilled) Color.White else BLACK_THREE,
         animationSpec = tween(1300), label = "")
 
     Column (
