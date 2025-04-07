@@ -1,44 +1,28 @@
 package com.zhei.lawy.view.viewmodel
-import android.app.Application
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.google.firebase.Timestamp
-import com.google.firebase.firestore.FieldValue
 import com.zhei.lawy.EntityExecuted
-import com.zhei.lawy.MyApplication
 import com.zhei.lawy.data.model.ChattingEntity
 import com.zhei.lawy.data.repository.AnswerAIRepository
-import com.zhei.lawy.data.repository.CommnonActionsRepository
+import com.zhei.lawy.data.repository.CommonActionsRepository
 import com.zhei.lawy.data.repository.QuestionRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flatMapMerge
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.math.RoundingMode
 
 class MainScreenViewModel : ViewModel() {
 
-    private val repositoryCommon = CommnonActionsRepository()
+    private val repositoryCommon = CommonActionsRepository()
     private val repositoryQuestion = QuestionRepository()
     private val repositoryAnswer = AnswerAIRepository()
 
@@ -69,6 +53,7 @@ class MainScreenViewModel : ViewModel() {
 
     fun updateTextField (value: String) { _textfield.value = value }
 
+
     fun addPernsonQuestion()
     {
         if (onTextFill) {
@@ -80,15 +65,7 @@ class MainScreenViewModel : ViewModel() {
                 hoursRepresent = repositoryCommon.getHoursFromTimestamp(Timestamp.now())
             )
 
-            if (_chattingList.value.isEmpty()) {
-                _chattingList.update { it + chatting }
-
-            } else {
-                val confirm = chatting.generatedInfo !=_chattingList.value.last().generatedInfo
-                if (confirm) {
-                    _chattingList.update { it + chatting }
-                }
-            }
+            if (_chattingList.value.isEmpty()) { _chattingList.update { it + chatting } }
         }
     }
 
@@ -96,6 +73,7 @@ class MainScreenViewModel : ViewModel() {
     fun sendQuestion()
     {
         viewModelScope.launch {
+
             repositoryQuestion
                 .updateQuestion(map = mapOf("question" to (_textfield.value.toIntOrNull() ?: 0)))
 
@@ -130,7 +108,6 @@ class MainScreenViewModel : ViewModel() {
                }
            }
         }
-
     }
 
 

@@ -2,8 +2,8 @@ package com.zhei.lawy.view.ui.mainscreen
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.res.Configuration
-import android.os.Build
 import android.util.Log
+import android.view.View
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
@@ -15,27 +15,19 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsBottomHeight
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -53,9 +45,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -81,8 +76,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -95,21 +93,25 @@ import com.zhei.lawy.data.model.ChattingEntity
 import com.zhei.lawy.ui.theme.BLACK_ONE
 import com.zhei.lawy.ui.theme.BLACK_THREE
 import com.zhei.lawy.ui.theme.BLACK_TWO
-import com.zhei.lawy.ui.theme.BLUE_FOUR
 import com.zhei.lawy.ui.theme.GREEN_EIGHT
-import com.zhei.lawy.ui.theme.GREEN_THREE
-import com.zhei.lawy.ui.theme.GREY_ONE
-import com.zhei.lawy.ui.theme.PurpleGrey40
 import com.zhei.lawy.ui.theme.RED_FOUR
-import com.zhei.lawy.ui.theme.RED_THREE
 import com.zhei.lawy.ui.theme.YELLOW_THREE
 import com.zhei.lawy.view.viewmodel.MainScreenViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-@SuppressLint("ContextCastToActivity")
 @Preview
+@Composable fun PreviewMainScreen ()
+{
+    MainScreen(
+        navHost = rememberNavController(),
+        viewMainS =  remember { MainScreenViewModel() }
+    )
+}
+
+
+@SuppressLint("ContextCastToActivity")
 @Composable fun MainScreen (
     navHost: NavHostController = rememberNavController(),
     viewMainS: MainScreenViewModel = viewModel()
@@ -128,7 +130,7 @@ import kotlinx.coroutines.launch
         viewMainS.updateOnTextFill()
     }
     
-    LaunchedEffect(Unit) { delay(500); viewMainS.updateAppIsOn() }
+    LaunchedEffect(Unit) { delay(1500); viewMainS.updateAppIsOn() }
 
     viewMainS.getAnswerAI()
 
@@ -194,6 +196,16 @@ import kotlinx.coroutines.launch
 @Composable fun HeaderMainScreenArea (
     viewMainS: MainScreenViewModel
 ) {
+    val heightDevicePx = with(LocalDensity.current) {
+        LocalConfiguration.current.screenHeightDp.dp.toPx()
+    }
+    val widthDevicePx = with(LocalDensity.current) {
+        LocalConfiguration.current.screenWidthDp.dp.toPx()
+    }
+
+    val imageHistorySize = (heightDevicePx * widthDevicePx) / 25000
+    val surfaceMainSize = (heightDevicePx * widthDevicePx) / 10000
+
     val focusKeyBoard = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val animateY = animateTranslationYRocket(viewMainS = viewMainS)
@@ -202,7 +214,7 @@ import kotlinx.coroutines.launch
     Surface (
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp),
+            .height(with(LocalDensity.current) { surfaceMainSize.toDp() }), /*120pd*/
         color = Color.Transparent,
         shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
     ) {
@@ -225,15 +237,6 @@ import kotlinx.coroutines.launch
                     fontSize = 30.sp,
                     color = Color.White
                 )
-                Image(
-                    imageVector = Icons.Default.Rocket,
-                    contentDescription = "hola",
-                    colorFilter = ColorFilter.tint(RED_FOUR),
-                    modifier = Modifier
-                        .graphicsLayer {
-                            translationY = animateY
-                        }
-                )
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -250,7 +253,7 @@ import kotlinx.coroutines.launch
                     imageVector = Icons.Default.History,
                     contentDescription = "history",
                     modifier = Modifier
-                        .size(30.dp)
+                        .size(35.dp)/*35*/
                         .pointerInput(Unit) {
                             detectTapGestures {
                                 scope.launch {
@@ -313,20 +316,58 @@ fun ChattingSectionArea(
 
     /*Lista para testing!!!*/
     val testing = listOf(
-        ChattingEntity("hay! que mas lawy!", Timestamp.now(), EntityExecuted.PERSON, "1:08 p.m."),
-        ChattingEntity("Bien y tu?", Timestamp.now(), EntityExecuted.AI, "1:08 p.m."),
-        ChattingEntity("Increible! ayer salí al parque para jugar con mis amigos!", Timestamp.now(), EntityExecuted.PERSON, "1:10 p.m."),
-        ChattingEntity("Enserio! y que jugaste con tus amigos?", Timestamp.now(), EntityExecuted.AI, "1:10 p.m."),
-        ChattingEntity("Bueno...en principio jugamos futbol, luego uno de mis amigos propuso jugar basquet en el parque de al lado", Timestamp.now(), EntityExecuted.PERSON, "1:11 p.m."),
-        ChattingEntity("Woa! debes tener un excelente físico para poder realizar todas esas acciones, y a que horas terminaste de jugar?", Timestamp.now(), EntityExecuted.AI, "1:12 p.m."),
-        ChattingEntity("Woa! debes tener un excelente físico para poder realizar todas esas acciones, y a que horas terminaste de jugar?", Timestamp.now(), EntityExecuted.PERSON, "1:12 p.m."),
-        ChattingEntity("Woa! debes tener un excelente físico para poder realizar todas esas acciones, y a que horas terminaste de jugar?", Timestamp.now(), EntityExecuted.AI, "1:12 p.m.")
+        ChattingEntity(
+            "Hola lawy!",
+            Timestamp.now(),
+            EntityExecuted.PERSON,
+            "1:08 p.m."
+        ),
+        ChattingEntity(
+            "Hola! como estas?",
+            Timestamp.now(),
+            EntityExecuted.AI,
+            "1:08 p.m."
+        ),
+        ChattingEntity(
+            "Muy bien! tengo una pregunta respecto a un área legal.",
+            Timestamp.now(),
+            EntityExecuted.PERSON,
+            "1:10 p.m."
+        ),
+        ChattingEntity(
+            "Adelante...pregunta! estoy para ayudarte",
+            Timestamp.now(), EntityExecuted.AI,
+            "1:10 p.m."
+        ),
+        ChattingEntity(
+            "Bueno...Queria preguntarte sobre el código de comercio, ¿Que es?",
+            Timestamp.now(),
+            EntityExecuted.PERSON,
+            "1:11 p.m."
+        ),
+        ChattingEntity(
+            "El Código de Comercio es el documento legal en el que se establecen las normas para garantizar la transparencia y estandarización de prácticas comerciales en Colombia. Fue publicado en 1971 a través del Decreto 410 del 27 de marzo. ¿Tienes otra pregunta respecto al codigo de comercio?",
+            Timestamp.now(),
+            EntityExecuted.AI,
+            "1:12 p.m."
+        ),
+        ChattingEntity(
+            "Perfecto, gracias!",
+            Timestamp.now(),
+            EntityExecuted.PERSON,
+            "1:12 p.m."
+        ),
+        ChattingEntity(
+            "No hay de que...estoy para ayudar! =)",
+            Timestamp.now(),
+            EntityExecuted.AI,
+            "1:12 p.m."
+        )
     )
 
     LazyColumn (
         modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
+            .fillMaxSize()
             .imePadding()
             .animateContentSize()
             .padding(start = 20.dp, end = 20.dp, bottom = 100.dp),
@@ -336,7 +377,7 @@ fun ChattingSectionArea(
         state = lazyListState
     ) {
 
-        itemsIndexed(testing.reversed(), key = {ind, item -> "${item.generatedInfo}_$ind"}
+        itemsIndexed(testing, key = {ind, item -> "${item.generatedInfo}_$ind"}
         ) { index, item ->
             CustomsChattingCardsItems(
                 index = index,
@@ -403,7 +444,7 @@ fun ChattingSectionArea(
                 }
             }
 
-            SurfaceInnerMScreen(item = item)
+            BoxInnerMScreen(item = item)
         }
     }
 
@@ -411,23 +452,24 @@ fun ChattingSectionArea(
 }
 
 
-@Composable fun SurfaceInnerMScreen (
+@Composable fun BoxInnerMScreen (
     item: ChattingEntity
 ) {
-
-    Surface (
-        modifier = Modifier.padding(
-            start = if (item.entityExecuted == EntityExecuted.PERSON) 30.dp else 0.dp,
-            end = if (item.entityExecuted == EntityExecuted.PERSON) 0.dp else 30.dp
-        ),
-        color = if (item.entityExecuted == EntityExecuted.PERSON) Color.Transparent else Color.White,
-        shape = RoundedCornerShape(
-            topStart = if (item.entityExecuted == EntityExecuted.PERSON) 20.dp else 0.dp,
-            topEnd = if (item.entityExecuted == EntityExecuted.PERSON) 0.dp else 20.dp,
-            bottomStart = if (item.entityExecuted == EntityExecuted.PERSON) 0.dp else 20.dp,
-            bottomEnd = if (item.entityExecuted == EntityExecuted.PERSON) 20.dp else 0.dp
-        ),
-        shadowElevation = 5.dp
+    Box(
+        modifier = Modifier
+            .padding(
+                start = if (item.entityExecuted == EntityExecuted.PERSON) 30.dp else 0.dp,
+                end = if (item.entityExecuted == EntityExecuted.PERSON) 0.dp else 30.dp
+            )
+            .background(
+                color = if (item.entityExecuted == EntityExecuted.PERSON) Color.Transparent else Color.White,
+                shape = RoundedCornerShape(
+                    topStart = if (item.entityExecuted == EntityExecuted.PERSON) 20.dp else 0.dp,
+                    topEnd = if (item.entityExecuted == EntityExecuted.PERSON) 0.dp else 20.dp,
+                    bottomStart = if (item.entityExecuted == EntityExecuted.PERSON) 0.dp else 20.dp,
+                    bottomEnd = if (item.entityExecuted == EntityExecuted.PERSON) 20.dp else 0.dp
+                )
+            )
     ) {
 
         Column (
@@ -451,9 +493,38 @@ fun ChattingSectionArea(
 
 
 @Composable
+fun rememberImePadding(): Dp {
+    val imeBottomPadding = remember { mutableIntStateOf(0) }
+    val density = LocalDensity.current
+    val view = LocalView.current
+
+    DisposableEffect(LocalView.current) {
+        val listener = View.OnApplyWindowInsetsListener { v, insets ->
+            val imeHeight = insets.systemWindowInsetBottom
+            imeBottomPadding.intValue = imeHeight
+            insets
+        }
+        view.setOnApplyWindowInsetsListener(listener)
+        onDispose { view.setOnApplyWindowInsetsListener(null) }
+    }
+
+    return with(density) { imeBottomPadding.intValue.toDp() }
+}
+
+
+@Composable
 fun BottomMainScreenArea (
     viewMainS: MainScreenViewModel
 ) {
+
+    val insets = LocalView.current.let { view ->
+        remember {
+            ViewCompat.getRootWindowInsets(view)
+                ?.getInsets(WindowInsetsCompat.Type.ime())?.bottom ?: 0
+        }
+    }
+    val imePaddingToOlds = with(LocalDensity.current) { insets.toDp() }
+
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -466,7 +537,10 @@ fun BottomMainScreenArea (
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .background(BLACK_THREE, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                .background(
+                    Brush.verticalGradient(listOf(Color.Black, BLACK_TWO)),
+                    RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                )
         ) {
 
             Column (
@@ -491,6 +565,7 @@ fun BottomMainScreenArea (
     val keyBoard = LocalSoftwareKeyboardController.current
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
 
     Row (
         modifier = Modifier
@@ -544,7 +619,7 @@ fun BottomMainScreenArea (
     }
 
     LaunchedEffect(key1 = Unit) {
-        delay(1000)
+        delay(500)
         focusRequest.requestFocus()
         keyBoard?.show()
     }

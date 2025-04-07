@@ -1,5 +1,6 @@
 package com.zhei.lawy.view
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.runtime.Composable
@@ -37,9 +38,8 @@ import com.zhei.lawy.view.viewmodel.SplashScreenViewModel
 
         composable<Screens.MainScreen> (
             enterTransition = {
-                slideInVertically(
-                    initialOffsetY = { -it },
-                    animationSpec = tween(1500)
+                slideInHorizontally(
+                    initialOffsetX = { -it }, animationSpec = tween(1500)
                 )
             }
         ) {

@@ -17,8 +17,7 @@ class QuestionRepository : IQuestionRepository {
         withContext(Dispatchers.IO) {
             try {
                 firestore.collection("response")
-                    .document("questions")
-                    .update(map)
+                    .document("questions").update(map)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
