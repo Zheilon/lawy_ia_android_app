@@ -43,10 +43,7 @@ import com.zhei.lawy.view.viewmodel.SplashScreenViewModel
                 )
             }
         ) {
-            MainScreen(
-                navHost = navHost,
-                viewMainS = viewMainS
-            )
+            MainScreen(viewMainS = viewMainS)
         }
     }
 }

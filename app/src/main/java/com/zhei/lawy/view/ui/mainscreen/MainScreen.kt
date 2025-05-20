@@ -104,16 +104,12 @@ import kotlinx.coroutines.launch
 @Preview
 @Composable fun PreviewMainScreen ()
 {
-    MainScreen(
-        navHost = rememberNavController(),
-        viewMainS =  remember { MainScreenViewModel() }
-    )
+    MainScreen(viewMainS = viewModel())
 }
 
 
 @SuppressLint("ContextCastToActivity")
 @Composable fun MainScreen (
-    navHost: NavHostController = rememberNavController(),
     viewMainS: MainScreenViewModel = viewModel()
 ) {
 
@@ -126,15 +122,17 @@ import kotlinx.coroutines.launch
         }
     }
 
-    LaunchedEffect(key1 = viewMainS.textfield.value) {
-        viewMainS.updateOnTextFill()
-    }
-    
+    LaunchedEffect(key1 = viewMainS.textfield.value) { viewMainS.updateOnTextFill() }
+
     LaunchedEffect(Unit) { delay(1500); viewMainS.updateAppIsOn() }
 
-    viewMainS.getAnswerAI()
+    LaunchedEffect(Unit) { viewMainS.getAnswerAI() }
 
-    Log.e("LISTA ORIGIN", viewMainS.chattingList.collectAsState().value.toString())
+    val chat by viewMainS.chattingList.collectAsState()
+    LaunchedEffect(Unit) {
+        Log.e("LISTA ORIGIN", chat.toString())
+    }
+
 
     /*Main Box*/
 
@@ -309,9 +307,7 @@ import kotlinx.coroutines.launch
 fun ChattingSectionArea(
     viewMainS: MainScreenViewModel
 ) {
-
     val lazyListState = rememberLazyListState()
-
     val originList by viewMainS.chattingList.collectAsState()
 
     /*Lista para testing!!!*/
@@ -352,10 +348,10 @@ fun ChattingSectionArea(
             "1:12 p.m."
         ),
         ChattingEntity(
-            "Perfecto, gracias!",
-            Timestamp.now(),
-            EntityExecuted.PERSON,
-            "1:12 p.m."
+            generatedInfo = "Perfecto, gracias!",
+            timestamp =  Timestamp.now(),
+            entityExecuted =  EntityExecuted.PERSON,
+            hoursRepresent = "1:12 p.m."
         ),
         ChattingEntity(
             "No hay de que...estoy para ayudar! =)",
@@ -373,16 +369,16 @@ fun ChattingSectionArea(
             .padding(start = 20.dp, end = 20.dp, bottom = 100.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-        /*reverseLayout = true /*para que los elementos entrantes sea los primeros en verse.*/*/
-        state = lazyListState
+        state = lazyListState,
+        reverseLayout = true
     ) {
 
-        itemsIndexed(testing, key = {ind, item -> "${item.generatedInfo}_$ind"}
+        itemsIndexed(originList.reversed(), key = {ind, item -> "${item.generatedInfo}_$ind"}
         ) { index, item ->
             CustomsChattingCardsItems(
                 index = index,
                 item = item,
-                list = testing
+                list = originList
             )
         }
     }
@@ -516,15 +512,6 @@ fun rememberImePadding(): Dp {
 fun BottomMainScreenArea (
     viewMainS: MainScreenViewModel
 ) {
-
-    val insets = LocalView.current.let { view ->
-        remember {
-            ViewCompat.getRootWindowInsets(view)
-                ?.getInsets(WindowInsetsCompat.Type.ime())?.bottom ?: 0
-        }
-    }
-    val imePaddingToOlds = with(LocalDensity.current) { insets.toDp() }
-
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -538,7 +525,7 @@ fun BottomMainScreenArea (
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .background(
-                    Brush.verticalGradient(listOf(Color.Black, BLACK_TWO)),
+                    color = Color.Black,
                     RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
                 )
         ) {
@@ -650,7 +637,7 @@ fun BottomMainScreenArea (
         animationSpec = tween(1300), label = "")
 
     val animatedColor by animateColorAsState(
-        targetValue = if (onTextFilled) Color.White else BLACK_THREE,
+        targetValue = if (onTextFilled) Color.White else Color.Black,
         animationSpec = tween(1300), label = "")
 
     Column (

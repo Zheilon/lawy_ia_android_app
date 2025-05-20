@@ -1,75 +1,27 @@
 package com.zhei.lawy
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.long
-import java.io.File
-
-const val save_path_tokens = "C:\\Users\\esteb\\OneDrive\\Escritorio\\lawy_ia_py\\vocabulary.json"
-const val doc_to_read = "C:\\Users\\esteb\\OneDrive\\Escritorio\\lawy_ia_py\\const_CO.txt"
-
-fun main () { tokenizerToAdd() }
-
-
-fun convertTextToListWords() : List<String>
-{
-    val textRed = File(doc_to_read).readText()
-    var chain = ""
-    val listFilled = mutableListOf("")
-    textRed.forEach { char ->
-        if (char != ' ') {
-            chain += char
-        } else {
-            listFilled.add(chain)
-            chain = ""
-        }
-    }
-    return listFilled
-}
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 
-fun tokenizerToAdd ()
-{
-    val jsonFile = File(save_path_tokens)
-
-    val first = (65..90).map { Char(it) }
-    val second = (97..122).map { Char(it) }
-    val three = (160..223).map { Char(it) }
-    val four = (224..400).map { Char(it) }
-
-    println(first)
-    println(second)
-    println(three)
-    println(four)
-
-    if (jsonFile.exists()) {
-        convertTextToListWords().forEach { vocab ->
-
-            val jString = jsonFile.readText()
-            val jElement = Json.parseToJsonElement(jString) as JsonObject
-            val jS = jElement.toMutableMap()
-
-            var newChar = ""
-            vocab.forEach { character ->
-                if (character in first || character in second || character in three || character in four) {
-                    newChar += character
-                }
+fun main () {
+    "Dude What are you doing! ha?!".split(' ').forEach {
+        it.forEachIndexed { index, letter ->
+            if (index % 2 == 0) {
+                print(letter)
             }
-
-            println(jElement)
-
-            /*jElement.forEach { (key, value) ->
-                if (key != newChar) {
-                    val lastvalue = JsonPrimitive((jS[jElement.keys.last()]?.jsonPrimitive?.long ?: 0) + 1)
-                    if (value != lastvalue) {
-                        jS[newChar] = lastvalue
-                        jsonFile.writeText(Json.encodeToString(JsonObject(jS)))
-                    }
-                }
-            }*/
-
-            newChar = ""
         }
     }
 }

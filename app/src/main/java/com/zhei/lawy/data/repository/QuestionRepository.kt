@@ -12,12 +12,10 @@ class QuestionRepository : IQuestionRepository {
 
     private val firestore by lazy { FirebaseFirestore.getInstance() }
 
-
     override suspend fun updateQuestion(map: Map<String, Any>) {
         withContext(Dispatchers.IO) {
             try {
-                firestore.collection("response")
-                    .document("questions").update(map)
+                firestore.collection("response").document("questions").update(map)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -38,7 +36,6 @@ class QuestionRepository : IQuestionRepository {
                     trySend(value.getBoolean("activate"))
                 }
             }
-
         awaitClose { response.remove() }
     }
 }

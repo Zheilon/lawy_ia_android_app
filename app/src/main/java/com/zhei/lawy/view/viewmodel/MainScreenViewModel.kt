@@ -16,9 +16,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.math.RoundingMode
+
 
 class MainScreenViewModel : ViewModel() {
 
@@ -41,9 +42,6 @@ class MainScreenViewModel : ViewModel() {
     private val _chattingList = MutableStateFlow<List<ChattingEntity>>(emptyList())
     val chattingList: StateFlow<List<ChattingEntity>> = _chattingList.asStateFlow()
 
-    private val _lastedValue = mutableStateOf(Any())
-    val lastedValue: State<Any> = _lastedValue
-
 
     fun updateOnTextFill () { onTextFill = textfield.value.isNotEmpty() }
 
@@ -51,7 +49,7 @@ class MainScreenViewModel : ViewModel() {
 
     fun updateAppIsOn () { appIsOn = !appIsOn }
 
-    fun updateTextField (value: String) { _textfield.value = value }
+    fun updateTextField (value: String) { _textfield.value = value}
 
 
     fun addPernsonQuestion()
@@ -64,8 +62,7 @@ class MainScreenViewModel : ViewModel() {
                 entityExecuted = EntityExecuted.PERSON,
                 hoursRepresent = repositoryCommon.getHoursFromTimestamp(Timestamp.now())
             )
-
-            if (_chattingList.value.isEmpty()) { _chattingList.update { it + chatting } }
+            _chattingList.update { it + chatting }
         }
     }
 
@@ -73,14 +70,9 @@ class MainScreenViewModel : ViewModel() {
     fun sendQuestion()
     {
         viewModelScope.launch {
-
-            repositoryQuestion
-                .updateQuestion(map = mapOf("question" to (_textfield.value.toIntOrNull() ?: 0)))
-
+            repositoryQuestion.updateQuestion(map = mapOf("question" to _textfield.value))
             delay(1000)
-
-            repositoryQuestion
-                .updateQuestion(map = mapOf("activate" to true))
+            repositoryQuestion.updateQuestion(map = mapOf("activate" to true))
         }
     }
 
@@ -91,19 +83,14 @@ class MainScreenViewModel : ViewModel() {
            repositoryAnswer.isCurrent().collect { bool ->
                bool?.let { Log.e("Trusted", it.toString()) }
                if (bool == true) {
-                   repositoryAnswer.getAnswerWithFlow().collect { number ->
-                       if (lastedValue.value != number) {
-                           number?.let { Log.e("Number", it.toString()) }
-                           val chatting = ChattingEntity(
-                               generatedInfo = number.toString().toDouble().
-                               toBigDecimal().setScale(3, RoundingMode.HALF_UP).toString(),
-                               timestamp = Timestamp.now(),
-                               entityExecuted = EntityExecuted.AI,
-                               hoursRepresent = repositoryCommon.getHoursFromTimestamp(Timestamp.now())
-                           )
-                           _chattingList.update { it + chatting }
-                           number?.let { _lastedValue.value = it }
-                       }
+                   repositoryAnswer.getAnswerWithFlow().distinctUntilChanged().collect { response ->
+                       val chatting = ChattingEntity(
+                           generatedInfo = response.toString(),
+                           timestamp = Timestamp.now(),
+                           entityExecuted = EntityExecuted.AI,
+                           hoursRepresent = repositoryCommon.getHoursFromTimestamp(Timestamp.now())
+                       )
+                       _chattingList.update { it + chatting }
                    }
                }
            }
