@@ -1,4 +1,4 @@
-## Diseño de.
+## Diseño de una aplicación móvil de orientación legal mediante IA generativa Transformer: Lawy IA
 
 - ****Contexto:***  Las consultas de personas con relación a temas legales, son dispendiosas si no se dispone de una fuente unica y veraz, con la cual se pueda dar solución a la inquietud del solicitante.*
 
