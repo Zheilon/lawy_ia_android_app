@@ -3,7 +3,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface IAnswerAIRepository {
 
-    suspend fun getAnswerWithFlow(): Flow<Any?>
+    suspend fun getAnswerWithFlow(): Flow<String>
 
     suspend fun isCurrent(): Flow<Boolean?>
 

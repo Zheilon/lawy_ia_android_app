@@ -12,10 +12,13 @@ import com.zhei.lawy.data.model.ChattingEntity
 import com.zhei.lawy.data.repository.AnswerAIRepository
 import com.zhei.lawy.data.repository.CommonActionsRepository
 import com.zhei.lawy.data.repository.QuestionRepository
+import com.zhei.lawy.utils.cancelAndLaunch
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -38,8 +41,11 @@ class MainScreenViewModel : ViewModel() {
     private val _textfield = mutableStateOf("")
     val textfield: State<String> = _textfield
 
+    private var chattingListJob: Job? = null
     private val _chattingList = MutableStateFlow<List<ChattingEntity>>(emptyList())
     val chattingList: StateFlow<List<ChattingEntity>> = _chattingList.asStateFlow()
+
+    private val activeJobs = mutableListOf<Job>()
 
 
     fun updateOnTextFill () { onTextFill = textfield.value.isNotEmpty() }
@@ -49,6 +55,14 @@ class MainScreenViewModel : ViewModel() {
     fun updateAppIsOn () { appIsOn = !appIsOn }
 
     fun updateTextField (value: String) { _textfield.value = value}
+
+    /**
+     * Me sirve para cancelar todos los Jobs activos, cuando el VM muere!
+     * */
+    override fun onCleared() {
+        super.onCleared()
+        activeJobs.forEach { it.cancel() }
+    }
 
 
     fun addPernsonQuestion()
@@ -78,21 +92,22 @@ class MainScreenViewModel : ViewModel() {
 
     fun getAnswerAI()
     {
-        viewModelScope.launch {
-           repositoryAnswer.isCurrent().collect { bool ->
-               bool?.let { Log.e("Trusted", it.toString()) }
-               if (bool == true) {
-                   repositoryAnswer.getAnswerWithFlow().distinctUntilChanged().collect { response ->
-                       val chatting = ChattingEntity(
-                           generatedInfo = response.toString(),
-                           timestamp = Timestamp.now(),
-                           entityExecuted = EntityExecuted.AI,
-                           hoursRepresent = repositoryCommon.getHoursFromTimestamp(Timestamp.now())
-                       )
-                       _chattingList.update { it + chatting }
-                   }
-               }
-           }
+        chattingListJob.cancelAndLaunch(activeJobs, viewModelScope) {
+            combine(
+                repositoryAnswer.isCurrent().distinctUntilChanged(),
+                repositoryAnswer.getAnswerWithFlow().distinctUntilChanged()
+            ) { isCurrent, iaAnswer -> isCurrent to iaAnswer }
+                .collect { (isCurrent, iaAnswer) ->
+                    if (isCurrent) {
+                        val chatting = ChattingEntity(
+                            generatedInfo = iaAnswer,
+                            timestamp = Timestamp.now(),
+                            entityExecuted = EntityExecuted.AI,
+                            hoursRepresent = repositoryCommon.getHoursFromTimestamp(Timestamp.now())
+                        )
+                        _chattingList.update { it + chatting }
+                    }
+                }
         }
     }
 
