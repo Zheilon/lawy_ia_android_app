@@ -2,6 +2,10 @@
 
 - ****Contexto:***  Las consultas de personas con relación a temas legales, son dispendiosas si no se dispone de una fuente unica y veraz, con la cual se pueda dar solución a la inquietud del solicitante.*
 
+- ****Tecnologias:*** Kotlin 2.0.0, para la creación de la app movil. Python para el desarrollo de la IA generativa con TensorFlow, siendo esta una libreria orientada a la creación de redes neuronales. Con la cual se desarrollará un modelo de IA generativa autorregresiva, tipo transformer - Decoder only*
+
+- ****Área:*** Desarrollo de aplicaciones moviles en android, Desarrollo de IA* 
+
 ## Screenshots
 
 ![App ScreenShot]()
