@@ -4,7 +4,8 @@
 
 - ***Tecnologias:***
   - ****Kotlin 2.0.0***, para la creación de la app movil.*
-  - *Python para el desarrollo de la IA generativa con TensorFlow, siendo esta una libreria orientada a la creación de redes neuronales. Con la cual se desarrollará un modelo de IA generativa autorregresiva, tipo transformer - Decoder only*
+  - ****Python*** para el desarrollo de la IA generativa con TensorFlow, siendo esta una libreria orientada a la creación de redes neuronales. Con la cual se desarrollará un modelo de IA generativa autorregresiva, tipo transformer - Decoder only*
+  - ****FireBase***, *
 
 - ****Área:*** Desarrollo de aplicaciones moviles en android, Desarrollo de IA* 
 
