@@ -11,7 +11,7 @@
 
 ## Screenshots
 
-![App ScreenShot]()
+![App ScreenShot](app/assets/preview_1.jpg)
 
 
 ## Features
