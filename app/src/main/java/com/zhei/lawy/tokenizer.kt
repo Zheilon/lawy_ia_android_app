@@ -27,6 +27,7 @@ class FactoryMyViewRepo(private val context: Context): ViewModelProvider.Factory
 {
     private val repo by lazy { MyViewRepo(context) }
 
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T = when {
         modelClass.isAssignableFrom(ViewModelRepo::class.java) -> {
             ViewModelRepo(repo) as T
