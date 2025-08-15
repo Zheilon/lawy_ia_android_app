@@ -1,27 +1,37 @@
 package com.zhei.lawy
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import android.content.Context
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-
 
 fun main () {
-    "Dude What are you doing! ha?!".split(' ').forEach {
-        it.forEachIndexed { index, letter ->
-            if (index % 2 == 0) {
-                print(letter)
-            }
+}
+
+class MyViewRepo (private val context: Context) {}
+class ViewModelRepo(private val myRepo: MyViewRepo): ViewModel() {}
+
+
+@Composable fun Initializable() {
+    val viewmodelrepo: ViewModelRepo = viewModel(factory = FactoryMyViewRepo(LocalContext.current))
+}
+
+/**
+ * Se encarga de retornar un tipo de ViewModel()
+ * */
+class FactoryMyViewRepo(private val context: Context): ViewModelProvider.Factory
+{
+    private val repo by lazy { MyViewRepo(context) }
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T = when {
+        modelClass.isAssignableFrom(ViewModelRepo::class.java) -> {
+            ViewModelRepo(repo) as T
         }
+        else -> throw IllegalArgumentException("Clase ViewModel desconocida: ${modelClass.name}")
     }
+
 }

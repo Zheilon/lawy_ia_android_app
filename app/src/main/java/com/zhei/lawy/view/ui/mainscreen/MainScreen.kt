@@ -280,12 +280,12 @@ import kotlinx.coroutines.launch
 }
 
 
-@Composable fun animateTranslationYRocket (
-    viewMainS: MainScreenViewModel
-) : Float {
+@Composable fun animateTranslationYRocket (viewMainS: MainScreenViewModel) : Float
+{
     return animateFloatAsState(
         targetValue = if (viewMainS.appIsOn) 1f else 200f,
-        animationSpec = tween(1500), label = "").value
+        animationSpec = tween(1500), label = ""
+    ).value
 }
 
 

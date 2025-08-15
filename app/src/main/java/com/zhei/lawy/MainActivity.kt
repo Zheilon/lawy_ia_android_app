@@ -26,9 +26,11 @@ import kotlinx.coroutines.tasks.await
 
 class MainActivity : ComponentActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             LawyTheme {
                 MyNavGraph()

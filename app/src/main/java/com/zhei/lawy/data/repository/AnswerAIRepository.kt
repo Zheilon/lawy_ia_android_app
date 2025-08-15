@@ -21,7 +21,6 @@ class AnswerAIRepository : IAnswerAIRepository {
                     trySend(value.get("answer"))
                 }
             }
-
         awaitClose { listener.remove() }
     }
 
@@ -34,9 +33,7 @@ class AnswerAIRepository : IAnswerAIRepository {
                     return@addSnapshotListener
                 }
 
-                if (value != null) {
-                    trySend(value.getBoolean("isCurrent"))
-                }
+                if (value != null) { trySend(value.getBoolean("isCurrent")) }
             }
         awaitClose { listener.remove() }
     }

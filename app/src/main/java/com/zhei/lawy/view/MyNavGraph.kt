@@ -22,7 +22,7 @@ import com.zhei.lawy.view.viewmodel.SplashScreenViewModel
 
     NavHost(navController = navHost, startDestination = Screens.SplashScreen) {
 
-        composable<Screens.SplashScreen> () {
+        composable<Screens.SplashScreen> {
             SplashScreenLawy (
                 viewSplash = viewSplash,
                 onNavigate = {
@@ -38,9 +38,7 @@ import com.zhei.lawy.view.viewmodel.SplashScreenViewModel
 
         composable<Screens.MainScreen> (
             enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { -it }, animationSpec = tween(1500)
-                )
+                slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(1500))
             }
         ) {
             MainScreen(viewMainS = viewMainS)

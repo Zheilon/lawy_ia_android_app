@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-
 class MainScreenViewModel : ViewModel() {
 
     private val repositoryCommon = CommonActionsRepository()
