@@ -6,7 +6,7 @@
   - ****Kotlin 2.0.0***, para la creación de la app movil.*
   - ****Python*** necesario en el desarrollo de la IA generativa con TensorFlow, siendo esta una libreria orientada a la creación de redes neuronales. Con la cual se desarrollará un modelo de IA generativa autorregresiva, tipo transformer - Decoder only*
   - ****FireBase***, dentro de este servicio se utilizará un servicio de bases de datos no relacionales denominado, FireStore, el cual me permite guardar información dentro de un sistema de colecciones y documentos, siendo esta su estructura.*
-  - ![image](app/assets/lawy_db_info_1.jpg)
+  - ![image](app/assets/lawy_db_info_2.jpg)
 - ****Área:*** Desarrollo de aplicaciones moviles en android, Desarrollo de IA* 
 
 ## Screenshots
