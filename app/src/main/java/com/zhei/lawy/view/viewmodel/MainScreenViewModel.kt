@@ -90,6 +90,12 @@ class MainScreenViewModel : ViewModel() {
     }
 
 
+    /**
+     * En esta función utilizo la extensión de Job, cancelAndLaunch que me
+     * permite cancelar el job anterior si es que esta activo, e internamente
+     * agregar este job a la lista activeJobs, siendo esta utilizada en el
+     * onCleared().
+     * */
     fun getAnswerAI()
     {
         chattingListJob.cancelAndLaunch(activeJobs, viewModelScope) {

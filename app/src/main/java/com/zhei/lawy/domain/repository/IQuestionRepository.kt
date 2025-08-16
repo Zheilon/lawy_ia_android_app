@@ -5,6 +5,4 @@ interface IQuestionRepository {
 
     suspend fun updateQuestion (map: Map<String, Any>)
 
-    suspend fun isActivate () : Flow<Boolean?>
-
 }

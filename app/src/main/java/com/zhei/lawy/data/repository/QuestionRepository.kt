@@ -21,22 +21,4 @@ class QuestionRepository : IQuestionRepository {
             }
         }
     }
-
-
-    override suspend fun isActivate() : Flow<Boolean?> = callbackFlow {
-        val response = firestore
-            .collection("response")
-            .document("questions").addSnapshotListener { value, error ->
-
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
-                }
-
-                if (value != null) {
-                    trySend(value.getBoolean("activate"))
-                }
-            }
-        awaitClose { response.remove() }
-    }
 }
